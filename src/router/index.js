@@ -11,10 +11,16 @@ const routes = [
     path: "/",
     name: "Login",
     component: Login,
+    meta: {
+      hideForAuth: true,
+    },
   },
 
   {
     path: "/dashboard",
+    meta: {
+      requiresAuth: true,
+    },
     component: Home,
     children: [
       {
@@ -79,6 +85,30 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem("user");
+
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (!loggedIn) {
+      next({ path: "/" });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+
+  if (to.matched.some((record) => record.meta.hideForAuth)) {
+    if (loggedIn) {
+      next({ path: "/", name: "Home" });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
 });
 
 export default router;

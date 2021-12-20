@@ -74,16 +74,30 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "NavigationBar",
   data() {
     return {
       menus: [
         { title: "Profile", icon: "mdi-account", url: "/profile" },
-        { title: "Logout", icon: "mdi-logout", url: "/login" },
-        // { title: "Logout", icon: "mdi-logout", method: () => this.logout() },
+        { title: "Logout", icon: "mdi-logout", method: () => this.logout() },
       ],
     };
   },
+  // data
+
+  computed: {
+    ...mapGetters(["isLogged"]),
+  },
+  // computed
+
+  methods: {
+    logout() {
+      this.$store.dispatch("logout");
+    },
+  },
+  // methods
 };
 </script>

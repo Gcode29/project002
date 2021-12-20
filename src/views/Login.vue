@@ -25,6 +25,9 @@
           />
 
           <v-card-text>
+            <v-alert v-if="error" color="#D50000" dense outlined type="error">
+              <strong>Invalid</strong> Credentials
+            </v-alert>
             <v-form @submit.prevent="login">
               <v-text-field
                 label="Email"
@@ -40,17 +43,17 @@
                 prepend-inner-icon="mdi-lock"
                 suffix="| Forgot?"
               />
-              <!-- <v-btn
-              style="color: #ffffff"
-              color="#065535"
-              x-large
-              block
-              btn
-              type="submit"
-            >
-              <span>Login</span>
-            </v-btn> -->
-              <a href="/dashboard">Login</a>
+              <v-btn
+                :loading="loading"
+                style="color: #ffffff"
+                color="#065535"
+                x-large
+                block
+                btn
+                type="submit"
+              >
+                <span>Login</span>
+              </v-btn>
             </v-form>
             <v-card-actions>
               <v-checkbox color="" label="Remember me"></v-checkbox>
@@ -65,10 +68,41 @@
 
 <script>
 import { ParticlesBg } from "particles-bg-vue";
+
 export default {
   name: "App",
   components: {
     ParticlesBg,
+  },
+
+  data() {
+    return {
+      email: "",
+      password: "",
+      loading: false,
+      error: false,
+    };
+  },
+
+  methods: {
+    login() {
+      this.error = false;
+      this.loading = true;
+
+      this.$store
+        .dispatch("login", {
+          email: this.email,
+          password: this.password,
+        })
+        .then(() => {
+          this.$router.push({ name: "Home" });
+        })
+        .catch((err) => {
+          this.error = true;
+          this.loading = false;
+          console.log(err);
+        });
+    },
   },
 };
 </script>
