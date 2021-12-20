@@ -26,24 +26,26 @@
 
           <v-card-text>
             <v-alert v-if="error" color="#D50000" dense outlined type="error">
-              <strong>Invalid</strong> Credentials
+              <!-- <strong>Invalid</strong> Credentials  -->
+              These credentials do not match our records.
             </v-alert>
-            <v-form @submit.prevent="login">
+            <v-form @submit.prevent="onSubmit">
               <v-text-field
                 label="Email"
                 name="email"
-                v-model="email"
+                v-model="form.email"
                 prepend-inner-icon="mdi-mail"
               />
               <v-text-field
                 label="Password"
                 type="password"
                 name="password"
-                v-model="password"
+                v-model="form.password"
                 prepend-inner-icon="mdi-lock"
                 suffix="| Forgot?"
               />
               <v-btn
+                @click.prevent="onSubmit"
                 :loading="loading"
                 style="color: #ffffff"
                 color="#065535"
@@ -68,6 +70,7 @@
 
 <script>
 import { ParticlesBg } from "particles-bg-vue";
+import { mapActions } from "vuex";
 
 export default {
   name: "App",
@@ -77,31 +80,29 @@ export default {
 
   data() {
     return {
-      email: "",
-      password: "",
       loading: false,
       error: false,
+
+      form: {
+        email: "",
+        password: "",
+      },
     };
   },
-
   methods: {
-    login() {
-      this.error = false;
-      this.loading = true;
+    ...mapActions("auth", ["login"]),
 
-      this.$store
-        .dispatch("login", {
-          email: this.email,
-          password: this.password,
-        })
-        .then(() => {
-          this.$router.push({ name: "Home" });
-        })
-        .catch((err) => {
-          this.error = true;
-          this.loading = false;
-          console.log(err);
-        });
+    async onSubmit() {
+      this.error = null;
+      this.loading = true;
+      try {
+        await this.login(this.form);
+        this.loading = false;
+        this.$router.push("/dashboard");
+      } catch (error) {
+        this.error = true;
+        this.loading = false;
+      }
     },
   },
 };

@@ -89,13 +89,14 @@ export default {
   // data
 
   computed: {
-    ...mapGetters(["isLogged"]),
+    ...mapGetters("auth", ["isLogged"]),
   },
   // computed
 
   methods: {
-    logout() {
-      this.$store.dispatch("logout");
+    async logout() {
+      localStorage.removeItem("token");
+      this.$router.push("/");
     },
   },
   // methods

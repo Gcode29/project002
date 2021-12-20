@@ -133,6 +133,8 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+
 export default {
   name: "Dashboard",
   data() {
@@ -209,6 +211,18 @@ export default {
         },
       ],
     };
+  },
+
+  computed: mapGetters("auth", ["user"]),
+
+  created() {
+    this.me();
+
+    console.log(this.user);
+  },
+
+  methods: {
+    ...mapActions("auth", ["me"]),
   },
 };
 </script>
