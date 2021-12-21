@@ -17,9 +17,11 @@ import Sidebar from "../components/Sidebar.vue";
 
 export default {
   components: { Sidebar, NavigationBar },
-  data: () => ({
-    cards: ["Today", "Yesterday"],
-    drawer: true,
-  }),
+  data() {
+    return {
+      cards: ["Today", "Yesterday"],
+      drawer: true,
+    };
+  },
 };
 </script>

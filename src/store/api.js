@@ -1,13 +1,17 @@
 import axios from "axios";
 
-const api = axios.create({
+const BaseApi = axios.create({
   baseURL: process.env.VUE_APP_API_URL,
 });
 
-const token = localStorage.getItem("token");
+let api = function () {
+  let token = localStorage.getItem("token");
 
-if (token) {
-  api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-}
+  if (token) {
+    BaseApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  }
+
+  return BaseApi;
+};
 
 export default api;

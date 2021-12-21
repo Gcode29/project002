@@ -34,7 +34,7 @@
                 <img src="https://randomuser.me/api/portraits/men/3.jpg" />
               </v-avatar>
             </v-badge>
-            <span>Admin</span>
+            <span class="ml-2">{{ user.fullname }}</span>
           </v-chip>
         </span>
       </template>
@@ -45,7 +45,7 @@
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title>
-              <span>Admin</span>
+              <span>{{ user.fullname }}</span>
             </v-list-item-title>
             <v-list-item-subtitle> Logged In </v-list-item-subtitle>
           </v-list-item-content>
@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "NavigationBar",
@@ -82,23 +82,37 @@ export default {
     return {
       menus: [
         { title: "Profile", icon: "mdi-account", url: "/profile" },
-        { title: "Logout", icon: "mdi-logout", method: () => this.logout() },
+        { title: "Logout", icon: "mdi-logout", method: () => this.exit() },
       ],
+      errorMsg: null,
     };
   },
   // data
 
   computed: {
     ...mapGetters("auth", ["isLogged"]),
+    ...mapGetters("auth", ["user"]),
   },
   // computed
 
   methods: {
-    async logout() {
-      localStorage.removeItem("token");
-      this.$router.push("/");
+    ...mapActions("auth", ["me"]),
+    ...mapActions("auth", ["logout"]),
+
+    async exit() {
+      this.error = null;
+      try {
+        await this.logout(this.form);
+        this.$router.push("/");
+      } catch (e) {
+        console.log(e);
+      }
     },
   },
   // methods
+
+  async mounted() {
+    await this.me();
+  },
 };
 </script>

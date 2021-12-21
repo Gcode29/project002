@@ -8,7 +8,7 @@
       <v-row>
         <v-col lg="7" cols="12">
           <v-alert dense text type="success">
-            <strong>Login Successfully: </strong> Welcome {user} !
+            <strong>Login Successfully: </strong> Welcome {{ user.fullname }} !
           </v-alert>
           <v-row>
             <v-col
@@ -213,16 +213,17 @@ export default {
     };
   },
 
-  computed: mapGetters("auth", ["user"]),
-
-  created() {
-    this.me();
-
-    console.log(this.user);
+  computed: {
+    ...mapGetters("auth", ["user"]),
+    //
   },
 
   methods: {
     ...mapActions("auth", ["me"]),
+  },
+
+  async mounted() {
+    await this.me();
   },
 };
 </script>

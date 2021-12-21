@@ -1,45 +1,57 @@
 import api from "../api";
+import Csrf from "../Csrf";
 
 const state = {
   token: localStorage.getItem("token") || "",
   user: null,
-};
-
-const mutations = {
-  SET_DATA(state, data) {
-    state.user = data;
-
-    // localStorage.setItem("user", JSON.stringify(data));
-
-    localStorage.setItem(
-      "token",
-      (api.defaults.headers.common.Authorization = ` ${data.token}`)
-    );
-  },
-
-  SET_USER: (state, data) => (state.user = data),
-};
-
-const actions = {
-  login({ commit, dispatch }, credentials) {
-    return api.post("/login", credentials).then(({ data }) => {
-      commit("SET_DATA", data);
-
-      dispatch("user_data");
-    });
-  },
-
-  async me({ commit }) {
-    const response = await api.get("/me");
-
-    commit("SET_USER", response.data);
-  },
+  isLoggedIn: !!localStorage.getItem("token"),
 };
 
 const getters = {
   isLogged: (state) => !!state.user,
   token: (state) => state.token,
   user: (state) => state.user,
+};
+
+const mutations = {
+  SET_DATA(state, data) {
+    state.user = data;
+
+    localStorage.setItem(
+      "token",
+      (api().defaults.headers.common.Authorization = ` ${data.token}`)
+    );
+
+    localStorage.setItem("auth", "true");
+  },
+  SET_USER: (state, data) => (state.user = data),
+};
+
+const actions = {
+  async login({ commit, dispatch }, credentials) {
+    await Csrf.getCookie();
+    return api()
+      .post("/login", credentials)
+      .then(({ data }) => {
+        api().get("/csrf-cookie");
+
+        commit("SET_DATA", data);
+
+        dispatch("me");
+      });
+  },
+
+  async me({ commit }) {
+    const response = await api().get("/me");
+
+    commit("SET_USER", response.data);
+  },
+
+  async logout() {
+    await Csrf.getCookie();
+
+    localStorage.removeItem("token");
+  },
 };
 
 export const auth = {

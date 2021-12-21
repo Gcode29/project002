@@ -86,6 +86,7 @@ export default {
       form: {
         email: "",
         password: "",
+        device_name: "browser",
       },
     };
   },
