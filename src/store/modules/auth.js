@@ -3,7 +3,7 @@ import Csrf from "../Csrf";
 
 const state = {
   token: localStorage.getItem("token") || "",
-  user: null,
+  user: {},
   isLoggedIn: !!localStorage.getItem("token"),
 };
 
@@ -11,20 +11,6 @@ const getters = {
   isLogged: (state) => !!state.user,
   token: (state) => state.token,
   user: (state) => state.user,
-};
-
-const mutations = {
-  SET_DATA(state, data) {
-    state.user = data;
-
-    localStorage.setItem(
-      "token",
-      (api().defaults.headers.common.Authorization = ` ${data.token}`)
-    );
-
-    localStorage.setItem("auth", "true");
-  },
-  SET_USER: (state, data) => (state.user = data),
 };
 
 const actions = {
@@ -52,6 +38,20 @@ const actions = {
 
     localStorage.removeItem("token");
   },
+};
+
+const mutations = {
+  SET_DATA(state, data) {
+    state.user = data;
+
+    localStorage.setItem(
+      "token",
+      (api().defaults.headers.common.Authorization = ` ${data.token}`)
+    );
+
+    localStorage.setItem("auth", "true");
+  },
+  SET_USER: (state, data) => (state.user = data),
 };
 
 export const auth = {

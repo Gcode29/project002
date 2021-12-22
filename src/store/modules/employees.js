@@ -7,9 +7,6 @@ const state = {
 };
 
 const getters = {
-  //   allEmployees: (state) => {
-  //     return state.employees;
-  //   },
   allEmployees: (state) => state.employees,
 };
 

@@ -3,6 +3,7 @@ import Vuex from "vuex";
 // import axios from "axios";
 import { auth } from "./modules/auth";
 import { employees } from "./modules/employees";
+import { categories } from "./modules/categories";
 
 Vue.use(Vuex);
 
@@ -11,6 +12,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   modules: {
     auth,
+    categories,
     employees,
   },
 });

@@ -27,6 +27,28 @@
       </template>
     </v-snackbar>
 
+    <v-snackbar
+      v-model="snackbar2"
+      color="#D50000"
+      outlined
+      top
+      right
+      elevation="3"
+      class="mr-5"
+      :timeout="timeout"
+    >
+      <div>
+        <v-icon color="#D50000" class="mr-1">mdi-alert-circle-outline</v-icon>
+        ERROR FOUND
+      </div>
+
+      <template v-slot:action="{ attrs }">
+        <v-btn color="#D50000" text v-bind="attrs" @click="snackbar2 = false">
+          <v-icon>mdi-close-circle-outline</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
+
     <v-progress-linear
       :active="loading1"
       :indeterminate="loading1"
@@ -72,6 +94,7 @@
                           <v-text-field
                             label="First Name *"
                             v-model="form.fname"
+                            :rules="nameRules"
                             required
                           ></v-text-field>
                         </v-col>
@@ -79,6 +102,7 @@
                           <v-text-field
                             label="Middle Name *"
                             v-model="form.mname"
+                            :rules="nameRules"
                             required
                           ></v-text-field>
                         </v-col>
@@ -86,6 +110,7 @@
                           <v-text-field
                             label="Last Name *"
                             v-model="form.lname"
+                            :rules="nameRules"
                             required
                           ></v-text-field>
                         </v-col>
@@ -187,15 +212,14 @@
             :items="allEmployees"
             :search="search"
             item-key="name"
+            :loading="allEmployees"
+            loading-text="Loading... Please wait"
           >
             <template v-slot:item.fullname="{ item }">
               <a href="#" @click="dialog2 = true">{{ item.fullname }}</a>
             </template>
             <template v-slot:item.actions="{ item }">
               <Form :selected="item" />
-              <!-- <v-icon small class="mr-2" @click="opendialog(item)">
-                mdi-pencil
-              </v-icon> -->
               <v-btn color="success mb-2 mt-1 mr-2" @click="edit(item)"
                 ><v-icon>mdi-clipboard-text-search-outline</v-icon></v-btn
               >
@@ -377,8 +401,8 @@ export default {
     return {
       a: false,
       b: false,
-      employee_data: [],
       snackbar: false,
+      snackbar2: false,
       timeout: 2000,
       dialog: false,
       dialog2: false,
@@ -390,6 +414,13 @@ export default {
         .substr(0, 10),
       modal: false,
       // Date time picker
+
+      // Rules Validator
+      nameRules: [
+        (v) => !!v || "This Field is Required",
+        (v) => (v && v.length >= 3) || "Must be greater than 3 characters",
+      ],
+      // Rules Validator
 
       // form
       editmode: false,
@@ -408,13 +439,6 @@ export default {
 
       //   loading bar
       loading1: false,
-      watch: {
-        loading1(val) {
-          if (!val) return;
-
-          setTimeout(() => (this.loading1 = false), 3000);
-        },
-      },
       //   loading bar
 
       // table
@@ -434,17 +458,6 @@ export default {
         { text: "Salary", value: "salary" },
         { text: "Test", value: "actions" },
       ],
-      // desserts: [
-      //   {
-      //     name: "George Daniel S Uy",
-      //     age: 29,
-      //     birthday: "01/29/1993",
-      //     address: "Calamagui 1st, Ilagan Isabela",
-      //     contactno: "09978097411",
-      //     ecn: "09776336766",
-      //     salary: "P35,000",
-      //   },
-      // ],
       // table
 
       // Calendar
@@ -461,23 +474,10 @@ export default {
       selectedOpen: false,
       events: [],
       colors: [
-        "blue",
-        "indigo",
-        "deep-purple",
-        "cyan",
-        "green",
-        "orange",
-        "grey darken-1",
+        //
       ],
       names: [
-        "Meeting",
-        "Holiday",
-        "PTO",
-        "Travel",
-        "Event",
-        "Birthday",
-        "Conference",
-        "Party",
+        //
       ],
       // Calendar
     };
@@ -511,10 +511,6 @@ export default {
       this.id = "";
     },
 
-    opendialog() {
-      this.dialog2 = true;
-    },
-
     closedialog() {
       this.dialog2 = false;
       this.$refs.form.reset();
@@ -546,16 +542,16 @@ export default {
 
     async save() {
       this.$refs.form.validate();
-      this.loading = true;
-
+      this.loading1 = true;
       try {
         await this.addEmployee(this.form);
         this.a = true;
         this.snackbar = true;
-        this.loading = false;
+        this.loading1 = false;
         this.Close();
         this.getEmployee();
       } catch (err) {
+        this.snackbar2 = true;
         console.log(err);
         this.loading1 = false;
       }
@@ -594,9 +590,8 @@ export default {
       this.focus = date;
       this.type = "day";
     },
-    getEventColor(event) {
-      return event.color;
-    },
+
+    // calender
     setToday() {
       this.focus = "";
     },
@@ -606,53 +601,11 @@ export default {
     next() {
       this.$refs.calendar.next();
     },
-    showEvent({ nativeEvent, event }) {
-      const open = () => {
-        this.selectedEvent = event;
-        this.selectedElement = nativeEvent.target;
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => (this.selectedOpen = true))
-        );
-      };
-
-      if (this.selectedOpen) {
-        this.selectedOpen = false;
-        requestAnimationFrame(() => requestAnimationFrame(() => open()));
-      } else {
-        open();
-      }
-
-      nativeEvent.stopPropagation();
+    fetchEvents() {
+      //
     },
-    updateRange({ start, end }) {
-      const events = [];
 
-      const min = new Date(`${start.date}T00:00:00`);
-      const max = new Date(`${end.date}T23:59:59`);
-      const days = (max.getTime() - min.getTime()) / 86400000;
-      const eventCount = this.rnd(days, days + 20);
-
-      for (let i = 0; i < eventCount; i++) {
-        const allDay = this.rnd(0, 3) === 0;
-        const firstTimestamp = this.rnd(min.getTime(), max.getTime());
-        const first = new Date(firstTimestamp - (firstTimestamp % 900000));
-        const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000;
-        const second = new Date(first.getTime() + secondTimestamp);
-
-        events.push({
-          name: this.names[this.rnd(0, this.names.length - 1)],
-          start: first,
-          end: second,
-          color: this.colors[this.rnd(0, this.colors.length - 1)],
-          timed: !allDay,
-        });
-      }
-
-      this.events = events;
-    },
-    rnd(a, b) {
-      return Math.floor((b - a + 1) * Math.random()) + a;
-    },
+    // calender
   },
 };
 </script>

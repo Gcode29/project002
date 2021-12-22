@@ -80,6 +80,7 @@ export default {
   name: "NavigationBar",
   data() {
     return {
+      userdata: null,
       menus: [
         { title: "Profile", icon: "mdi-account", url: "/profile" },
         { title: "Logout", icon: "mdi-logout", method: () => this.exit() },
@@ -88,6 +89,10 @@ export default {
     };
   },
   // data
+
+  async mounted() {
+    await this.me();
+  },
 
   computed: {
     ...mapGetters("auth", ["isLogged"]),
@@ -110,9 +115,5 @@ export default {
     },
   },
   // methods
-
-  async mounted() {
-    await this.me();
-  },
 };
 </script>
