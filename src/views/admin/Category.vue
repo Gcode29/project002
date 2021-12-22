@@ -10,15 +10,12 @@
       class="mr-5"
       :timeout="timeout"
     >
-      <div v-if="success_add">
-        <v-icon color="success" class="mr-1">mdi-check-circle-outline</v-icon>
-        Category Successfully Created
-      </div>
+      <v-icon color="success" class="mr-1">mdi-check-circle-outline</v-icon>
+      <span v-if="success_add">Category Successfully Created</span>
 
-      <div v-if="success_update">
-        <v-icon color="success" class="mr-1">mdi-check-circle-outline</v-icon>
-        Category Successfully Updated
-      </div>
+      <span v-if="success_update">Category Successfully Updated</span>
+
+      <span v-if="success_delete">Category Successfully Deleted</span>
 
       <template v-slot:action="{ attrs }">
         <v-btn color="success" text v-bind="attrs" @click="snackbar = false">
@@ -82,7 +79,7 @@
                   ref="form"
                   v-model="valid"
                   lazy-validation
-                  prevent="editmode ? save() : update()"
+                  prevent="editmode ? Save() : Update()"
                 >
                   <v-card-title>
                     <span class="text-h5">Category Information</span>
@@ -95,6 +92,7 @@
                           v-model="form.category_name"
                           :rules="nameRules"
                           required
+                          v-on:keydown.enter.prevent="Save()"
                         ></v-text-field>
                       </v-col>
                     </v-container>
@@ -105,8 +103,21 @@
                     <v-btn color="blue darken-1" text @click="Close()">
                       Close
                     </v-btn>
-                    <v-btn color="blue darken-1" text @click="Save()">
+                    <v-btn
+                      v-if="!editmode"
+                      color="blue darken-1"
+                      text
+                      @click="Save()"
+                    >
                       Save
+                    </v-btn>
+                    <v-btn
+                      v-if="editmode"
+                      color="green darken-1"
+                      text
+                      @click="Update()"
+                    >
+                      Update
                     </v-btn>
                   </v-card-actions>
                 </v-form>
@@ -126,12 +137,22 @@
           </v-card-title>
           <v-data-table
             :headers="headers"
-            :items="desserts"
+            :items="allCategories"
             :search="search"
             item-key="name"
-            :loading="items"
-            loading-text="Loading... Please wait"
-          ></v-data-table>
+          >
+            <template v-slot:item.actions="{ item }">
+              <Form :selected="item" />
+              <v-btn class="success mb-2 mt-1 mr-2" @click="edit(item)"
+                ><v-icon>mdi-clipboard-text-search-outline</v-icon></v-btn
+              >
+              <v-btn
+                class="red mb-2 mt-1 white--text"
+                @click="deleteCategoryMeth(item.id)"
+                ><v-icon>mdi-clipboard-remove-outline</v-icon></v-btn
+              >
+            </template>
+          </v-data-table>
           <!-- table/ -->
         </v-card>
       </v-col>
@@ -146,6 +167,7 @@ export default {
     return {
       success_add: false,
       success_update: false,
+      success_delete: false,
       snackbar: false,
       snackbar2: false,
       timeout: 2000,
@@ -154,7 +176,7 @@ export default {
       valid: true,
 
       //   loading bar
-      loading1: true,
+      loading1: false,
       //   loading bar
 
       // Rules Validator
@@ -165,8 +187,8 @@ export default {
       // Rules Validator
 
       // form
-      categories: [],
       form: {
+        id: "",
         category_name: "",
       },
       // form
@@ -175,26 +197,12 @@ export default {
       search: "",
       headers: [
         {
-          text: "Dessert (100g serving)",
-          align: "start",
-          filterable: false,
-          value: "name",
+          text: "Category Name",
+          align: "center",
+          filterable: true,
+          value: "category_name",
         },
-        { text: "Calories", value: "calories" },
-        { text: "Fat (g)", value: "fat" },
-        { text: "Carbs (g)", value: "carbs" },
-        { text: "Protein (g)", value: "protein" },
-        { text: "Iron (%)", value: "iron" },
-      ],
-      desserts: [
-        {
-          name: "Frozen Yogurt",
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          iron: "1%",
-        },
+        { text: "Actions", align: "center", value: "actions" },
       ],
       // table
     };
@@ -212,22 +220,64 @@ export default {
       this.id = "";
     },
 
-    Save() {
+    async Save() {
       this.$refs.form.validate();
-      this.Close();
-      this.success_add = true;
-      this.snackbar = true;
+      this.loading1 = true;
+      try {
+        await this.addCategory(this.form);
+        this.success_add = true;
+        this.snackbar = true;
+        this.loading1 = false;
+        this.Close();
+        this.getCategories();
+      } catch (err) {
+        this.snackbar2 = true;
+        console.log(err);
+        this.loading1 = false;
+      }
+    },
+
+    async Update() {
+      this.$refs.form.validate();
+      this.loading1 = true;
+
+      try {
+        await this.updateCategory(this.form);
+        this.success_update = true;
+        this.snackbar = true;
+        this.loading1 = false;
+        this.Close();
+        this.getCategories();
+      } catch (err) {
+        this.snackbar2 = true;
+        this.loading1 = false;
+        console.log(err);
+      }
+    },
+
+    deleteCategoryMeth(id) {
+      this.loading1 = true;
+      if (confirm("Are you sure you want to Remove this Category?")) {
+        this.loading1 = false;
+        this.success_delete = true;
+        this.snackbar = true;
+        this.deleteCategory(id);
+      }
+
+      this.loading1 = false;
     },
 
     edit(item) {
       this.editmode = true;
       this.dialog = true;
-      this.form.category_name = item.fname;
-      this.id = item.id;
+      this.form = {
+        id: item.id,
+        category_name: item.category_name,
+      };
     },
 
     ...mapActions("categories", [
-      "getCategory",
+      "getCategories",
       "deleteCategory",
       "updateCategory",
       "addCategory",

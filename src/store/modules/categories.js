@@ -16,39 +16,38 @@ const actions = {
     commit("SET_CATEGORY", response.data);
   },
 
-  async addCategory() {
-    //
-    // const response = await api().post(`/employees`, credentials);
-    // commit("createEmployee", response.data);
+  async addCategory({ commit }, credentials) {
+    const response = await api().post(`/categories`, credentials);
+    commit("createCategory", response.data);
   },
 
-  async deleteCategory() {
-    // await api().delete(`employees/${id}`);
-    // commit("removeEmployee", id);
+  async deleteCategory({ commit }, id) {
+    await api().delete(`categories/${id}`);
+    commit("removeCategory", id);
   },
 
-  async updateCategory() {
-    // const response = await api().put(`employees/${payload.id}`, payload);
-    // commit("updateEmployee", response.data);
+  async updateCategory({ commit }, payload) {
+    const response = await api().put(`categories/${payload.id}`, payload);
+    commit("updateCategory", response.data);
   },
 };
 
 const mutations = {
   SET_CATEGORY: (state, data) => (state.categories = data),
-  //   createEmployee: (state, data) => state.employees.unshift(data),
-  //   removeEmployee: (state, id) =>
-  //     (state.employees = state.employees.filter(
-  //       (employee) => employee.id !== id
-  //     )),
-  //   updateEmployee: (state, data) => {
-  //     // Find index
-  //     const index = state.employees.findIndex(
-  //       (employee) => employee.id === data.id
-  //     );
-  //     if (index !== -1) {
-  //       state.employees.splice(index, 1, data);
-  //     }
-  //   },
+  createCategory: (state, data) => state.categories.unshift(data),
+  removeCategory: (state, id) =>
+    (state.categories = state.categories.filter(
+      (category) => category.id !== id
+    )),
+  updateCategory: (state, data) => {
+    // Find index
+    const index = state.categories.findIndex(
+      (category) => category.id === data.id
+    );
+    if (index !== -1) {
+      state.categories.splice(index, 1, data);
+    }
+  },
 };
 
 export const categories = {
