@@ -5,6 +5,7 @@ import { auth } from "./modules/auth";
 import { employees } from "./modules/employees";
 import { categories } from "./modules/categories";
 import { subcategories } from "./modules/subcategory";
+import { products } from "./modules/product";
 
 Vue.use(Vuex);
 
@@ -16,5 +17,6 @@ export default new Vuex.Store({
     employees,
     categories,
     subcategories,
+    products,
   },
 });

@@ -211,12 +211,16 @@ export default {
 
   methods: {
     New() {
-      (this.editmode = false), (this.dialog = true), this.$refs.form.reset();
+      this.editmode = false;
+      this.dialog = true;
+      this.$refs.form.reset();
       this.id = "";
     },
 
     Close() {
-      (this.editmode = false), (this.dialog = false), this.$refs.form.reset();
+      this.editmode = false;
+      this.dialog = false;
+      this.$refs.form.reset();
       this.id = "";
     },
 

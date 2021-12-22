@@ -1,26 +1,40 @@
 import api from "../api";
 // import Csrf from "../Csrf";
 
+const getDefaultState = () => {
+  return {
+    categorysubdata: [],
+  };
+};
+
 const state = {
   subcategories: [],
   // categories: [],
   subcategory: {},
+
+  categorysubdata: [],
 };
 
 const getters = {
   allSubCategories: (state) => state.subcategories,
   allCategories: (state) => state.categories,
+  categorysubdata: (state) => state.categorysubdata,
 };
 
 const actions = {
-  // async getCategories({ commit }) {
-  //   const response = await api().get("/categories");
-  //   commit("SET_CATEGORY", response.data2);
-  // },
-
   async getSubCategories({ commit }) {
     const response = await api().get("/subcategories");
     commit("SET_SUBCATEGORY", response.data);
+  },
+
+  async resetCategorySub({ commit }) {
+    commit("resetState");
+  },
+
+  async getCategorySub({ commit }, id) {
+    const response = await api().get(`/subcategories/${id}`, id);
+
+    commit("get_subcategory", response.data);
   },
 
   async addSubCategory({ commit }, credentials) {
@@ -40,7 +54,6 @@ const actions = {
 };
 
 const mutations = {
-  // SET_CATEGORY: (state, data2) => (state.categories = data2),
   SET_SUBCATEGORY: (state, data) => (state.subcategories = data),
   createSubCategory: (state, data) => state.subcategories.unshift(data),
   removeSubCategory: (state, id) =>
@@ -55,6 +68,11 @@ const mutations = {
     if (index !== -1) {
       state.subcategories.splice(index, 1, data);
     }
+  },
+
+  get_subcategory: (state, data) => (state.categorysubdata = data),
+  resetState(state) {
+    Object.assign(state.categorysubdata, getDefaultState());
   },
 };
 
