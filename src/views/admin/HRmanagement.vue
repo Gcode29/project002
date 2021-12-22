@@ -10,8 +10,15 @@
       class="mr-5"
       :timeout="timeout"
     >
-      <v-icon color="success" class="mr-1">mdi-check-circle-outline</v-icon>
-      Product Successfully Created
+      <div v-if="a">
+        <v-icon color="success" class="mr-1">mdi-check-circle-outline</v-icon>
+        Employee Record Successfully Created
+      </div>
+
+      <div v-if="b">
+        <v-icon color="success" class="mr-1">mdi-check-circle-outline</v-icon>
+        Employee Record Successfully Updated
+      </div>
 
       <template v-slot:action="{ attrs }">
         <v-btn color="success" text v-bind="attrs" @click="snackbar = false">
@@ -49,86 +56,118 @@
                 </v-btn>
               </template>
               <v-card>
-                <v-card-title>
-                  <span class="text-h5">Category Information</span>
-                </v-card-title>
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" lg="4" md="4">
-                        <v-text-field
-                          label="First Name *"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" lg="4" md="4">
-                        <v-text-field
-                          label="Middle Name *"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" lg="4" md="4">
-                        <v-text-field
-                          label="Last Name *"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" lg="4" md="4">
-                        <v-text-field label="Age"></v-text-field>
-                      </v-col>
-                      <v-col cols="12" lg="4" md="4">
-                        <v-menu
-                          v-model="menu2"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              v-model="date"
-                              label="Birth Date"
-                              prepend-icon="mdi-calendar"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="date"
-                            @input="menu2 = false"
-                          ></v-date-picker>
-                        </v-menu>
-                      </v-col>
-                      <v-col cols="12" lg="4" md="4">
-                        <v-text-field
-                          label="Contact No."
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" lg="6" md="6">
-                        <v-text-field
-                          label="Emergency Details (Name:Contact#)"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" lg="6" md="6">
-                        <v-text-field label="Address" required></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                  <small>*indicates required field</small>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="dialog = false">
-                    Close
-                  </v-btn>
-                  <v-btn color="blue darken-1" text @click="dialog = false">
-                    Save
-                  </v-btn>
-                </v-card-actions>
+                <v-form
+                  ref="form"
+                  v-model="valid"
+                  lazy-validation
+                  prevent="editmode ? save() : update()"
+                >
+                  <v-card-title>
+                    <span class="text-h5">Category Information</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col cols="12" lg="4" md="4">
+                          <v-text-field
+                            label="First Name *"
+                            v-model="form.fname"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" lg="4" md="4">
+                          <v-text-field
+                            label="Middle Name *"
+                            v-model="form.mname"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" lg="4" md="4">
+                          <v-text-field
+                            label="Last Name *"
+                            v-model="form.lname"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" lg="4" md="4">
+                          <v-text-field
+                            label="Age"
+                            v-model="form.age"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" lg="4" md="4">
+                          <v-menu
+                            v-model="menu2"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="form.bdate"
+                                label="Birth Date"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              v-model="form.bdate"
+                              @input="menu2 = false"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col>
+                        <v-col cols="12" lg="4" md="4">
+                          <v-text-field
+                            label="Contact No."
+                            v-model="form.contact"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" lg="6" md="6">
+                          <v-text-field
+                            label="Emergency Details (Name:Contact#)"
+                            v-model="form.contact2"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" lg="6" md="6">
+                          <v-text-field
+                            label="Address"
+                            required
+                            v-model="form.address"
+                          ></v-text-field>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                    <small>*indicates required field</small>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="Close()">
+                      Close
+                    </v-btn>
+                    <v-btn
+                      v-if="!editmode"
+                      color="blue darken-1"
+                      text
+                      @click="save()"
+                    >
+                      Save
+                    </v-btn>
+                    <v-btn
+                      v-if="editmode"
+                      color="green darken-1"
+                      text
+                      @click="update()"
+                    >
+                      Update
+                    </v-btn>
+                  </v-card-actions>
+                </v-form>
               </v-card>
             </v-dialog>
           </v-card-title>
@@ -145,16 +184,26 @@
           </v-card-title>
           <v-data-table
             :headers="headers"
-            :items="desserts"
+            :items="allEmployees"
             :search="search"
             item-key="name"
-            :loading="items"
-            loading-text="Loading... Please wait"
           >
+            <template v-slot:item.fullname="{ item }">
+              <a href="#" @click="dialog2 = true">{{ item.fullname }}</a>
+            </template>
             <template v-slot:item.actions="{ item }">
-              <v-icon small class="mr-2" @click="opendialog(item)">
+              <Form :selected="item" />
+              <!-- <v-icon small class="mr-2" @click="opendialog(item)">
                 mdi-pencil
-              </v-icon>
+              </v-icon> -->
+              <v-btn color="success mb-2 mt-1 mr-2" @click="edit(item)"
+                ><v-icon>mdi-clipboard-text-search-outline</v-icon></v-btn
+              >
+              <v-btn
+                color="red mb-2 mt-1 white--text"
+                @click="removeEmployee(item.id)"
+                ><v-icon>mdi-clipboard-remove-outline</v-icon></v-btn
+              >
             </template>
           </v-data-table>
           <!-- table/ -->
@@ -321,25 +370,44 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   data() {
     return {
+      a: false,
+      b: false,
+      employee_data: [],
       snackbar: false,
       timeout: 2000,
       dialog: false,
       dialog2: false,
-      editmode: false,
       valid: true,
+      menu2: "",
       // Date time Picker
       date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
         .toISOString()
         .substr(0, 10),
       modal: false,
-      menu2: false,
       // Date time picker
 
+      // form
+      editmode: false,
+      form: {
+        id: "",
+        fname: "",
+        lname: "",
+        mname: "",
+        bdate: "",
+        age: "",
+        contact: "",
+        contact2: "",
+        address: "",
+      },
+      // form
+
       //   loading bar
-      loading1: true,
+      loading1: false,
       watch: {
         loading1(val) {
           if (!val) return;
@@ -349,13 +417,6 @@ export default {
       },
       //   loading bar
 
-      // form
-      categories: [],
-      form: {
-        category_name: "",
-      },
-      // form
-
       // table
       search: "",
       headers: [
@@ -363,27 +424,27 @@ export default {
           text: "Name",
           align: "start",
           filterable: false,
-          value: "name",
+          value: "fullname",
         },
         { text: "Age", value: "age" },
         { text: "Birthday", value: "birthday" },
         { text: "Address", value: "address" },
         { text: "Contact Number", value: "contactno" },
-        { text: "Emergency Contact Number", value: "ecn" },
+        { text: "Emergency Contact Number", value: "EMcontact" },
         { text: "Salary", value: "salary" },
         { text: "Test", value: "actions" },
       ],
-      desserts: [
-        {
-          name: "George Daniel S Uy",
-          age: 29,
-          birthday: "01/29/1993",
-          address: "Calamagui 1st, Ilagan Isabela",
-          contactno: "09978097411",
-          ecn: "09776336766",
-          salary: "P35,000",
-        },
-      ],
+      // desserts: [
+      //   {
+      //     name: "George Daniel S Uy",
+      //     age: 29,
+      //     birthday: "01/29/1993",
+      //     address: "Calamagui 1st, Ilagan Isabela",
+      //     contactno: "09978097411",
+      //     ecn: "09776336766",
+      //     salary: "P35,000",
+      //   },
+      // ],
       // table
 
       // Calendar
@@ -422,17 +483,111 @@ export default {
     };
   },
   // data
-  mounted() {
-    this.$refs.calendar.checkChange();
+
+  computed: {
+    ...mapGetters("employees", ["allEmployees"]),
+  },
+  // computed
+
+  async mounted() {
+    await this.getEmployee();
   },
 
   methods: {
+    ...mapActions("employees", [
+      "getEmployee",
+      "deleteEmployee",
+      "updateEmployee",
+      "addEmployee",
+    ]),
+
+    New() {
+      (this.editmode = false), (this.dialog = true), this.$refs.form.reset();
+      this.id = "";
+    },
+
+    Close() {
+      (this.editmode = false), (this.dialog = false), this.$refs.form.reset();
+      this.id = "";
+    },
+
     opendialog() {
       this.dialog2 = true;
     },
 
     closedialog() {
       this.dialog2 = false;
+      this.$refs.form.reset();
+    },
+
+    edit(item) {
+      (this.editmode = true), (this.dialog = true);
+      this.form.fname = item.fname;
+      this.form.mname = item.mname;
+      this.form.lname = item.lname;
+      this.form.age = item.age;
+      this.form.address = item.address;
+      this.form.bdate = item.date;
+      this.form.contact = item.contactno;
+      this.form.contact2 = item.EMcontact;
+
+      this.id = item.id;
+    },
+
+    removeEmployee(id) {
+      this.loading1 = true;
+      if (confirm("Are you sure you want to Remove this Employee?")) {
+        this.loading1 = false;
+        this.deleteEmployee(id);
+      }
+
+      this.loading1 = false;
+    },
+
+    async save() {
+      this.$refs.form.validate();
+      this.loading = true;
+
+      try {
+        await this.addEmployee(this.form);
+        this.a = true;
+        this.snackbar = true;
+        this.loading = false;
+        this.Close();
+        this.getEmployee();
+      } catch (err) {
+        console.log(err);
+        this.loading1 = false;
+      }
+    },
+
+    async update() {
+      this.$refs.form.validate();
+      this.loading1 = true;
+
+      this.form = {
+        id: this.id,
+        lname: this.form.lname,
+        mname: this.form.mname,
+        fname: this.form.fname,
+        age: this.form.age,
+        address: this.form.address,
+        birthday: this.form.bdate,
+        contactno: this.form.contact,
+        EMcontact: this.form.contact2,
+      };
+
+      try {
+        await this.updateEmployee(this.form);
+        this.b = true;
+        this.snackbar = true;
+        this.loading1 = false;
+        this.Close();
+        this.getEmployee();
+      } catch (err) {
+        this.loading1 = false;
+        console.log(err);
+      }
     },
 
     viewDay({ date }) {
