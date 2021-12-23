@@ -45,6 +45,10 @@ const routes = [
         component: () => import("@/views/admin/Inbound"),
       },
       {
+        path: "/Branch",
+        component: () => import("@/views/admin/Branch"),
+      },
+      {
         path: "/Transaction",
         component: () => import("@/views/admin/Transaction"),
       },

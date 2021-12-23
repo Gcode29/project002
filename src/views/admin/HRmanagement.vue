@@ -212,8 +212,6 @@
             :items="allEmployees"
             :search="search"
             item-key="name"
-            :loading="allEmployees"
-            loading-text="Loading... Please wait"
           >
             <template v-slot:item.fullname="{ item }">
               <a href="#" @click="dialog2 = true">{{ item.fullname }}</a>
@@ -337,12 +335,9 @@
                       v-model="focus"
                       color="primary"
                       :events="events"
-                      :event-color="getEventColor"
                       :type="type"
-                      @click:event="showEvent"
                       @click:more="viewDay"
                       @click:date="viewDay"
-                      @change="updateRange"
                     ></v-calendar>
                     <v-menu
                       v-model="selectedOpen"

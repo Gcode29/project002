@@ -6,6 +6,8 @@ import { employees } from "./modules/employees";
 import { categories } from "./modules/categories";
 import { subcategories } from "./modules/subcategory";
 import { products } from "./modules/product";
+import { deliveries } from "./modules/deliveries";
+import { branches } from "./modules/branch";
 
 Vue.use(Vuex);
 
@@ -18,5 +20,7 @@ export default new Vuex.Store({
     categories,
     subcategories,
     products,
+    deliveries,
+    branches,
   },
 });

@@ -48,8 +48,6 @@ const mutations = {
       "token",
       (api().defaults.headers.common.Authorization = ` ${data.token}`)
     );
-
-    localStorage.setItem("auth", "true");
   },
   SET_USER: (state, data) => (state.user = data),
 };

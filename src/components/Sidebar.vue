@@ -102,6 +102,10 @@ export default {
               text: "Deliveries",
               url: "/Inbound",
             },
+            {
+              text: "Branches",
+              url: "/Branch",
+            },
           ],
         },
         {
