@@ -45,6 +45,7 @@ const mutations = {
   GET_DELIVERYDATA: (state, data) => (state.deliveryData = data),
 
   createDelivery: (state, data) => state.deliveries.unshift(data),
+
   removeDelivery: (state, id) =>
     (state.deliveries = state.deliveries.filter(
       (delivery) => delivery.id !== id

@@ -103,7 +103,7 @@ export default {
               url: "/Inbound",
             },
             {
-              text: "Branches",
+              text: "Warehouses",
               url: "/Branch",
             },
           ],

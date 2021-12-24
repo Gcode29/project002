@@ -8,6 +8,7 @@ let api = function () {
   let token = localStorage.getItem("token");
 
   if (token) {
+    axios.defaults.withCredentials = true;
     BaseApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 

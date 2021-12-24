@@ -1,6 +1,7 @@
 <template>
   <div>
     <particles-bg
+      v-if="!isMobile()"
       type="cobweb"
       color="#008080"
       :bg="true"
@@ -103,6 +104,18 @@ export default {
       } catch (error) {
         this.error = true;
         this.loading = false;
+      }
+    },
+
+    isMobile() {
+      if (
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        )
+      ) {
+        return true;
+      } else {
+        return false;
       }
     },
   },

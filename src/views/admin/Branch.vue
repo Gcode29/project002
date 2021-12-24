@@ -60,7 +60,7 @@
       <v-col cols="12">
         <v-card>
           <v-card-title class="d-flex justify-space-between align-center">
-            <h3>Branch Manager</h3>
+            <h3>Warehouse Manager</h3>
 
             <v-dialog v-model="dialog" persistent max-width="600px">
               <template v-slot:activator="{ on, attrs }">
@@ -204,7 +204,7 @@ export default {
       search: "",
       headers: [
         {
-          text: "Branch Name",
+          text: "Name",
           align: "center",
           filterable: true,
           value: "branch_name",

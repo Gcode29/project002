@@ -282,6 +282,7 @@ export default {
 
     ...mapActions("categories", [
       "getCategories",
+      "getClietCollections",
       "deleteCategory",
       "updateCategory",
       "addCategory",

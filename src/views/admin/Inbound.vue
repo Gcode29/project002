@@ -65,7 +65,7 @@
             </div>
             <div class="pa-2 mt-3">
               <v-btn
-                color="#26A69A"
+                color="#4FC3F7"
                 class="pa-2 rounded-lg"
                 dark
                 @click="NewIn()"
@@ -76,7 +76,7 @@
             </div>
             <div class="pa-2 mt-3 mr-3">
               <v-btn
-                color="#4FC3F7"
+                color="#26A69A"
                 class="pa-2 rounded-lg"
                 dark
                 @click="NewOut()"
@@ -205,6 +205,129 @@
                       <v-divider></v-divider>
                     </v-form>
                   </v-col>
+                  <!-- DELIVERY IN -->
+
+                  <!-- DELIVERY OUT -->
+                  <v-col cols="12" lg="6" md="6" v-if="transactionmode === 2">
+                    <v-form ref="form" v-model="valid">
+                      <v-row class="mb-2">
+                        <v-col cols="3">
+                          <v-autocomplete
+                            auto-select-first
+                            clearable
+                            label="Employee Checker"
+                            :items="allEmployees"
+                            :rules="nameRules"
+                            return-object
+                            item-value="id"
+                            item-text="fullname"
+                            v-model="form.employee"
+                          />
+                        </v-col>
+                        <v-col cols="4"
+                          ><v-select
+                            auto-select-first
+                            clearable
+                            label="Client Name*"
+                            :items="allClients"
+                            return-object
+                            item-value="id"
+                            item-text="client_name"
+                            v-model="form.client"
+                            @change="loadAddress(form.client.id)"
+                            required
+                            :rules="nameRules"
+                          ></v-select>
+                        </v-col>
+                        <v-col cols="5">
+                          <v-text-field
+                            v-model="form.address"
+                            :label="clientAddress.address"
+                            required
+                            :rules="CnameRules"
+                            validate-on-blur
+                          />
+                          <!-- <v-autocomplete
+                            :items="clientAddress"
+                            item-text="address"
+                            v-model="form.address"
+                            label="Address*"
+                            :rules="nameRules"
+                          /> -->
+                        </v-col>
+                        <v-col cols="12">
+                          <v-autocomplete
+                            auto-select-first
+                            clearable
+                            label="Product*"
+                            :items="allProducts"
+                            :rules="nameRules"
+                            item-value="id"
+                            item-text="uniquename"
+                            v-model="form.product"
+                            @change="fillForm(form.product)"
+                            return-object
+                            validate-on-blur
+                          ></v-autocomplete>
+                        </v-col>
+                        <v-col cols="6">
+                          <v-text-field
+                            v-model="form.price"
+                            label="Price*"
+                            type="number"
+                            required
+                            :rules="nameRules"
+                            validate-on-blur
+                          />
+                        </v-col>
+                        <v-col cols="6">
+                          <v-text-field
+                            v-model="form.uom"
+                            label="Unit of Measure*"
+                            readonly
+                            disabled
+                            required
+                            :rules="nameRules"
+                            validate-on-blur
+                          />
+                        </v-col>
+                        <v-col lg="6" md="6">
+                          <v-text-field
+                            v-model="form.quantity"
+                            label="Quantity*"
+                            type="number"
+                            @input="getTotalAmount"
+                            @change="getTotalAmount"
+                            required
+                            :rules="nameRules"
+                            validate-on-blur
+                          />
+                        </v-col>
+                        <v-col cols="12" lg="6" md="6">
+                          <v-text-field
+                            v-model="form.totalamount"
+                            label="Total Amount*"
+                            readonly
+                            disabled
+                            required
+                            :rules="nameRules"
+                            validate-on-blur
+                          />
+                        </v-col>
+                        <small>*indicates required field</small>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" text @click="Close()">
+                          Close
+                        </v-btn>
+                        <v-btn color="blue darken-1" text @click="addItem()">
+                          Add
+                        </v-btn>
+                      </v-row>
+                      <v-divider></v-divider>
+                    </v-form>
+                  </v-col>
+                  <!-- DELIVERY OUT -->
+
                   <v-col cols="12" lg="6" md="6">
                     <v-simple-table>
                       <template v-slot:default>
@@ -251,7 +374,6 @@
                       </template>
                     </v-simple-table>
                   </v-col>
-                  <!-- DELIVERY IN -->
                 </v-row>
               </v-container>
             </v-card>
@@ -459,8 +581,8 @@ export default {
       transactions: [],
 
       nameRules: [(v) => !!v || "Required*"],
+      CnameRules: [(v) => !!v || "Address Required*"],
 
-      categories: [],
       form: {
         status: "",
       },
@@ -517,6 +639,7 @@ export default {
     ...mapGetters("products", ["allProducts"]),
     ...mapGetters("deliveries", ["allDeliveries", "deliveryData"]),
     ...mapGetters("branches", ["allBranches"]),
+    ...mapGetters("clients", ["allClients", "clientAddress"]),
 
     total() {
       let total = 0;
@@ -536,6 +659,7 @@ export default {
     ...mapActions("employees", ["getEmployee"]),
     ...mapActions("products", ["getProducts"]),
     ...mapActions("branches", ["getBranches"]),
+    ...mapActions("clients", ["getClients", "getClientAddress"]),
 
     ...mapActions("deliveries", [
       "getDeliveries",
@@ -562,7 +686,7 @@ export default {
 
       await this.getEmployee();
       await this.getProducts();
-      await this.getBranches();
+      await this.getClients();
     },
 
     Close() {
@@ -581,6 +705,20 @@ export default {
 
       this.$refs.form.reset();
       this.id = "";
+    },
+
+    loadAddress(id) {
+      console.log(id);
+      if (id != "") {
+        try {
+          this.getClientAddress(id);
+        } catch (err) {
+          this.snackbar2 = true;
+          console.log(err);
+        }
+      } else {
+        this.snackbar2 = true;
+      }
     },
 
     clearForm() {
@@ -629,13 +767,14 @@ export default {
     async transationComplete() {
       this.loading = true;
       this.transactions.map((transaction) => {
+        transaction.mode = this.transactionmode;
         transaction.del_stat = this.form.status;
         transaction.grand_total = this.total;
         transaction.branch_id = this.form.branch;
         transaction.employee = this.form.employee.id;
+        console.log(this.transactionmode);
         return transaction;
       });
-
       try {
         await this.addDelivery(this.transactions);
         this.success_add = true;
